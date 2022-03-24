@@ -1,7 +1,7 @@
 {
   "name": "mongodb-express",
-  "version": "1.0.0",
-  "description": "A Demo MEAN Stack with the A",
+  "version": "1.1.1",
+  "description": "A Demo Express app backed by MongoDB ",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
