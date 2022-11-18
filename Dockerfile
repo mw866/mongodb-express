@@ -6,3 +6,4 @@ RUN npm install --production
 COPY . .
 EXPOSE 80
 CMD [ "npm", "start" ]
+LABEL org.opencontainers.image.source=https://github.com/mw866/mongodb-express
