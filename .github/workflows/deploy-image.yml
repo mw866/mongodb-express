@@ -1,8 +1,6 @@
 name: Build and scan a Docker image
 
-on:
-  push:
-    branches: ['main']
+on: [push, pull_request, workflow_dispatch]
 
 env:
   REGISTRY: ghcr.io
@@ -15,6 +13,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+  
 
     steps:
       - name: Checkout repository
@@ -41,11 +40,25 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels:  ${{ steps.meta.outputs.labels }}
-        # run: docker build . --tag ${{ steps.meta.outputs.tags }}# --label ${{ steps.meta.outputs.labels }}
+          run: docker build . --tag ${{ steps.meta.outputs.tags }}# --label ${{ steps.meta.outputs.labels }}
 
-      - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy "$POLICY"
+      - name: Run wiz-cli docker image scan using an non-existent policy
+        id: invalid-wiz-policy
+        run: |
+          set +e
+          ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy invalid 
+          exitcode=$?
+          echo "Wiz-cli exit code: $exitcode"
+          echo "wizcliexitcode=$exitcode" >> $GITHUB_OUTPUT
+          exit $exitcode
+        continue-on-error: true
      
+      - name: Run wiz-cli docker image scan using an existing policy
+        if: ${{ steps.invalid-wiz-policy.outputs.wizcliexitcode == 2 }}
+        run: |
+          echo "Wiz-cli exit code: ${{ steps.invalid-wiz-policy.outputs.wizcliexitcode }}"
+          ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy "$POLICY"
+
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
