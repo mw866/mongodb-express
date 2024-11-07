@@ -43,6 +43,9 @@ jobs:
       - name: Run wiz-cli docker image scan
         run: ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy "$POLICY" --output results.sarif,sarif
         
+      - name: Check image digest 
+        run: docker images --digest
+        
       - name: Send image digest to Wiz 
         run: ./wizcli docker tag --image  ${{ steps.meta.outputs.tags }}  
         
