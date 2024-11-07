@@ -41,8 +41,11 @@ jobs:
         # run: docker build . --tag ${{ steps.meta.outputs.tags }}# --label ${{ steps.meta.outputs.labels }}
 
       - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy "$POLICY" --format sarif | tee results.sarif
-
+        run: ./wizcli docker scan --image  ${{ steps.meta.outputs.tags }} --policy "$POLICY" --output results.sarif,sarif
+        
+      - name: Send image digest to Wiz 
+        run: ./wizcli docker tag --image  ${{ steps.meta.outputs.tags }}  
+        
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
